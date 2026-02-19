@@ -1,6 +1,6 @@
 ---
 
-- hosts: routers
+- hosts: platforms_ios
   become: yes
   
   tasks:
