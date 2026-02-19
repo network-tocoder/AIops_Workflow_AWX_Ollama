@@ -14,4 +14,3 @@
       cisco.ios.ios_config:
         lines: []
         save: yes
----
