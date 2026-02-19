@@ -1,0 +1,36 @@
+```yaml
+---
+- name: Configure OSPF area 0 on routers from different vendors
+  hosts: all
+  gather_facts: false
+
+  tasks:
+    - name: Detect the correct Ansible collection based on vendor and load appropriate configuration playbook
+      set_fact:
+        ansible_collections: "{{ lookup('env', 'ANSIBLE_COLLECTION') if current_vendor == 'cisco' else {'arista.eos': ['https://raw.githubusercontent.simulator/ansible-collections-community/arista.eos/main/galaxy/requirements/setup.yml'] | combine }}"
+      vars:
+        ansible_collection: "{{ 'cisco.ios' if current_vendor == 'cisco' else (lookup('vars', 'ansible_collections') | default({}))[item] when item in lookup('dict', lookup('env', 'ANSIBLE_COLLECTION'), 'default', {'arista.eos': []}) | select((_, collections) | first).keys() }}"
+      gather_facts: true
+      pre_task:
+        - name: Get the vendor of each router and store in a variable called current_vendor using ios_fact, eos_fact or junz-fact (depending on your device's OS) module. This will depend heavily on specific use case/devices which are not detailed herein as it varies by manufacturer & model.
+          set_fact:
+            devices|ansible.legacy.ios|ios_fact | json_query('[].vendor') > current_vendor
+          loop: "{{ groups['routers'] }}"
+        - name: Add Cisco to the default ansible collection for all playbooks if not already present as needed by ios_ospf module which may require this extra step. Note that in some cases, you might have separate Ansible collections (such as https://galaxy.ansible.com/arista-eos) and will need a different approach to load those
+          include_tasks: add_cisco_to_default_collection.yml
+        - name: Configure OSPF area 0 on Cisco devices using ios_ospf module with appropriate variables, assume interface names are in 'Ethernet{{ item }}' format and they should be added to ospf configuration as well (not explicitly mentioned here but needed)
+          become: yes
+          gather_facts: false
+          vars:
+            hostname: "router1"
+            username: admin
+            password: secret
+            interfaces: Ethernet0,Ethernet1  # Add all interface names that should be part of OSPF configuration here and adjust accordingly as needed per router. Assumed to already exist on the devices for this example but typically would need creation beforehand or discovery tasks within playbook if not present yet
+            area: "{{ item }}"
+          with_items: [0]  # Looping over single OSPF area '0' which is our target as per instruction, extend to more areas using loop in case of multi-area network configuration.
+             ios_ospf: &ospf_config
+              state: present
+              networks: "{{ interfaces|map('extract', hostname)|product(interfaces) }}"
+              router_id: {{ ansible_default_ipv4[1] }}  # Assuming '0.0.0.0' should be set as default Router ID, change accordingly to match the environment/preferences or replace this with dynamic value if needed
+        - name: Configure OSPF area 0 on Arista devices using eos_ospf module (or appropriate EOS-specific task) with equivalent variables and tasks. This would require discovery of interfaces in a similar way as shown for Cisco, but tailored to the specifics of arista playbooks/modules
+```
