@@ -1,6 +1,7 @@
 ---
 
 - hosts: platforms_ios
+  connection: ansible.netcommon.network_cli
   tasks:
     - name: Configure OSPF on router1
       cisco.ios.ios_config:
