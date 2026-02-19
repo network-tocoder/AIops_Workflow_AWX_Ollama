@@ -1,0 +1,17 @@
+---
+
+- hosts: platforms_ios
+  become: yes
+  
+  tasks:
+    - name: Configure OSPF on all routers in the inventory
+      cisco.ios.ios_config:
+        lines:
+          - router ospf 1
+          - network 0.0.0.0 255.255.255.255 area 0
+      
+    - name: Save configuration to ensure changes persist after reboot or module execution completion
+      cisco.ios.ios_config:
+        lines: []
+        save: yes
+---
