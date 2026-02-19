@@ -1,0 +1,24 @@
+```yaml
+---
+- name: Configure OSPF Area 0 on all routers from various vendors using appropriate Ansible collections
+  hosts: routers
+  gather_facts: false
+
+  tasks:
+    - name: Detect the correct collection based on vendor and load it into playbook inventory
+      set_fact:
+        ansible_collections_to_use: "{{ lookup('dict', { 'cisco.ios': true,
+                                                'arista.eos': true, 
+                 end_group)}}}"
+    - name: Get the collection to use based on inventory facts (assumed available)
+      set_fact:
+        ansible_collections: "{{ ansible_collections_to_use | dict2items | map(attribute='value') }}"
+      
+    - name: Configure OSPF Area 0 using cisco.ios collection for CISCO devices or equivalent collections if available and needed (add additional conditions as required)
+      ios_config:
+        lines:
+          - router ospf
+            area 0
+    
+    # Include similar tasks here for arista.eos, junipernetworks.junos vendors using respective collection commands with appropriate syntax adjustments
+```
