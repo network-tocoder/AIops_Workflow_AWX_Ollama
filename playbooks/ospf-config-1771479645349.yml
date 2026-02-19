@@ -1,0 +1,24 @@
+---
+
+- hosts: routers
+  become: yes
+  
+  tasks:
+    
+    - name: Configure OSPF on router1 in area '0'
+      cisco.ios.ios_config:
+        lines:
+          - "router ospf"
+          - " description OSPF Area 0 configuration."
+      delegate_to: routers
+      
+    - name: Configure Router2 and so on... (repeat for each router)
+      cisco.ios.ios_config:
+        lines:
+          - "router ospf"
+          - " no shutdown"
+          - " area 0"
+    
+---
+
+Replace `routers` with the actual target Cisco routers' hostnames or IP addresses in your inventory file. Repeat the task for each router as needed, changing only the delegate_to if necessary based on your setup (e.g., using different hosts groups).
