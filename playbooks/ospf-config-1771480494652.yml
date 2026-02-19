@@ -1,0 +1,16 @@
+---
+- hosts: routers
+  gather_facts: false
+  
+  tasks:
+    - name: Configure OSPF area 0 on all routers using cisco.ios collection
+      community.cisco.ios.ios_config:
+        lines:
+          - feature ospf
+          - router bgp {{ item }}
+            {% if not loop.last %} no nssa {% endif %}
+          - router eigrptable area 0 interface Loopback0 cost 10 priority high standby interfacerouterid R1-BKP
+          - network 192.0.2.0 mask 255.255.255.0 eospf cost 10 priority 0 standalone no shutdown
+        provider: "{{ item }}"
+      loop: "{{ routers_to_configure | default([]) }}"
+Please replace `routers_tostatic` with the actual list of router inventory you want to configure.
