@@ -1,6 +1,6 @@
 ---
 - hosts: platforms_ios
-  ansible_connection: network_cli
+  connection: ansible.netcommon.network_cli
   become: yes
   gather_facts: no
 
