@@ -1,0 +1,21 @@
+---
+
+- hosts: platforms_ios
+
+  gather_facts: False
+
+  tasks:
+
+    - name: Configure OSPF on all routers in the group
+
+      cisco.ios.ios_config:
+
+        lines:
+
+          - router ospf 1
+
+          - network 0.0.0.0 255.255.255.255 area 0
+
+        state: present
+
+      connection: ansible.netcommon.network_cli
