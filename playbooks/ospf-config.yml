@@ -1,14 +1,11 @@
 ---
-
 - hosts: platforms_ios
   become: yes
+  gather_facts: no
+
   tasks:
-    - name: Configure OSPF area 0 on all Cisco IOS routers
+    - name: Configure OSPF area on Cisco IOS devices using ios_config module
       cisco.ios.ios_config:
         lines:
           - router ospf 1
           - network 0.0.0.0 255.255.255.255 area 0
-      
-    # Additional tasks or handlers can be added below if necessary for the configuration process, such as registering variables to hold important data from responses and handling failures by retry mechanisms (not included here due to constraints).
-    
----
