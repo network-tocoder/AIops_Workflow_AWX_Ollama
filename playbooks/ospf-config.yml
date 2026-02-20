@@ -6,8 +6,9 @@
 
   tasks:
     - name: Configure OSPF area 0
-      cisco.ios.ios_config:
-        lines:
+      cisco.ios.ios_command:
+        commands:
+          - configure terminal
           - router ospf 1
           - network 0.0.0.0 255.255.255.255 area 0
-        parents: []
+          - end
