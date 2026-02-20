@@ -1,14 +1,29 @@
 ---
-- hosts: platforms_ios
+- name: Configure OSPF on reachable IOS devices
+  hosts: platforms_ios
   gather_facts: false
   connection: ansible.netcommon.network_cli
   vars:
-    ansible_become_pass: admin
+    ansible_become_pass: ansible@123
 
   tasks:
-    - name: Configure OSPF area 0 on all routers
+    - name: Configure OSPF area 0
       cisco.ios.ios_config:
         lines:
           - router ospf 1
           - network 0.0.0.0 255.255.255.255 area 0
-      register: output
+      register: ospf_config
+
+    - name: Display OSPF configuration output
+      debug:
+        msg: "{{ inventory_hostname }}: {{ ospf_config }}"
+
+    - name: Verify OSPF neighbors
+      cisco.ios.ios_command:
+        commands:
+          - show ip ospf neighbor
+      register: ospf_neighbors
+
+    - name: Display OSPF neighbor output
+      debug:
+        msg: "{{ inventory_hostname }}: {{ ospf_neighbors.stdout[0] }}"
