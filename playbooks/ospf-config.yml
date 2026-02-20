@@ -1,21 +1,16 @@
 ---
-
-- hosts: platforms_ios
-
-  gather_facts: False
-
+- name: Get Device Versions
+  hosts: all
+  gather_facts: no
+  connection: ansible.netcommon.network_cli
+  
   tasks:
-
-    - name: Configure OSPF on all routers in the group
-
-      cisco.ios.ios_config:
-
-        lines:
-
-          - router ospf 1
-
-          - network 0.0.0.0 255.255.255.255 area 0
-
-        state: present
-
-      connection: ansible.netcommon.network_cli
+    - name: Run show version
+      cisco.ios.ios_command:
+        commands:
+          - show version
+      register: version_output
+      
+    - name: Display version
+      debug:
+        msg: "{{ inventory_hostname }}: {{ version_output.stdout_lines[0] | first }}"
