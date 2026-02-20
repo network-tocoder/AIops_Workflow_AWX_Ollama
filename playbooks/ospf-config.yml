@@ -3,7 +3,7 @@
   hosts: all
   gather_facts: no
   connection: ansible.netcommon.network_cli
-  
+  ansible_become_pass: yes
   tasks:
     - name: Run show version
       cisco.ios.ios_command:
